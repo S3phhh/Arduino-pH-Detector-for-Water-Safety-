@@ -1,0 +1,68 @@
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// LCD config (address, columns, rows)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int pH_pin = A0;
+const int buzzerPin = 8;
+float pH_value = 0.0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(pH_pin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("pH Sensor Ready");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int sensorValue = analogRead(pH_pin);
+  float voltage = sensorValue * (5.0 / 1023.0);
+
+  // Calibration formula (adjusted)
+  pH_value = -4.79 * voltage + 26.71;
+
+  // Serial Output
+  Serial.print("Raw Analog: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Voltage: ");
+  Serial.print(voltage, 2);
+  Serial.print(" V | pH: ");
+  Serial.println(pH_value, 2);
+
+  // LCD Display
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("pH: ");
+  lcd.print(pH_value, 2);
+
+  lcd.setCursor(0, 1);
+
+  // Decision & Buzzer logic
+  if (pH_value >= 6.5 && pH_value <= 8.5) {
+    lcd.print("LQD:Neutral/Safe ");
+    digitalWrite(buzzerPin, LOW); // No buzzer
+  }
+  else if (pH_value < 6.5) {
+    lcd.print("LQD:Acidic/Unsafe");
+    digitalWrite(buzzerPin, HIGH); // Continuous buzzer
+  }
+  else {
+    lcd.print("LQD:Alkaline/Unsafe");
+    // Intermittent buzzer
+    digitalWrite(buzzerPin, HIGH);
+    delay(200);
+    digitalWrite(buzzerPin, LOW);
+    delay(300);
+    return; // Skip final delay for proper beeping
+  }
+
+  delay(1500);
+}
