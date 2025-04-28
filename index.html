@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arduino pH Detector for Water Safety</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Dark Mode Toggle -->
+  <button id="toggle-theme">🌙</button>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content" data-aos="fade-up">
+      <h1>Arduino pH Detector for Water Safety</h1>
+      <p>Monitoring water quality easily and effectively with Arduino technology.</p>
+      <a href="#demo" class="btn">Watch Video</a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about" id="about">
+    <div class="container" data-aos="fade-right">
+      <h2>About the Project</h2>
+      <p>This project presents an Arduino-based pH detector that evaluates the safety of water by measuring its acidity or alkalinity levels. With a clear LCD display and smart buzzer alerts, it informs users about the water's condition — whether it is neutral and safe, acidic, or alkaline and unsafe. Designed for simplicity and reliability, this device helps ensure water quality in various environments.</p>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works" id="how">
+    <div class="container" data-aos="fade-left">
+      <h2>How It Works</h2>
+      <div class="cards">
+        <div class="card" data-aos="zoom-in">
+          <h3>1. Sensor Reading</h3>
+          <p>The pH sensor detects the voltage of the liquid sample and sends the data to the Arduino.</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="200">
+          <h3>2. Calculation</h3>
+          <p>The Arduino calculates the pH value using a calibrated formula and determines the water's safety level.</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="400">
+          <h3>3. Display and Alert</h3>
+          <p>The LCD screen shows the pH reading, while the buzzer signals if the water is unsafe (too acidic or too alkaline).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Video Section -->
+  <section class="demo" id="demo">
+    <div class="container" data-aos="fade-up">
+      <h2>Video Montage</h2>
+      <div class="video-wrapper">
+        <video controls loop>
+          <source src="PH VID.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- Picture Gallery Section -->
+  <section class="gallery" id="gallery">
+    <div class="container" data-aos="fade-up">
+      <h2>Project Images</h2>
+      <div class="image-gallery">
+        <div class="image-card"><img src="Pic1.jpg" alt="Project Image 1" /></div>
+        <div class="image-card"><img src="Pic 2.jpg" alt="Project Image 2" /></div>
+        <div class="image-card"><img src="Pic 3.jpg" alt="Project Image 3" /></div>
+        <div class="image-card"><img src="Pic 4.jpg" alt="Project Image 4" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Project Files Section -->
+  <section class="files" id="files">
+    <div class="container" data-aos="fade-up">
+      <h2>Project Files</h2>
+      <button id="openCodeModal" class="btn">View Arduino Code</button>
+    </div>
+  </section>
+
+  <!-- Code Modal -->
+  <div id="codeModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Arduino pH Detector Code</h3>
+      <pre><code>
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+// LCD config (address, columns, rows)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int pH_pin = A0;
+const int buzzerPin = 8;
+float pH_value = 0.0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(pH_pin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("pH Sensor Ready");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int sensorValue = analogRead(pH_pin);
+  float voltage = sensorValue * (5.0 / 1023.0);
+  pH_value = -4.79 * voltage + 26.71;
+  Serial.print("Raw Analog: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Voltage: ");
+  Serial.print(voltage, 2);
+  Serial.print(" V | pH: ");
+  Serial.println(pH_value, 2);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("pH: ");
+  lcd.print(pH_value, 2);
+  lcd.setCursor(0, 1);
+  if (pH_value >= 6.5 && pH_value <= 8.5) {
+    lcd.print("LQD:Neutral/Safe ");
+    digitalWrite(buzzerPin, LOW);
+  }
+  else if (pH_value < 6.5) {
+    lcd.print("LQD:Acidic/Unsafe");
+    digitalWrite(buzzerPin, HIGH);
+  }
+  else {
+    lcd.print("LQD:Alkaline/Unsafe");
+    digitalWrite(buzzerPin, HIGH);
+    delay(200); digitalWrite(buzzerPin, LOW); delay(300);
+    return;
+  }
+  delay(1500);
+}
+      </code></pre>
+    </div>
+  </div>
+
+  <!-- Contributors Section -->
+  <section class="contributors" id="contributors">
+    <div class="container" data-aos="fade-up">
+      <h2>Contributors</h2>
+      <ul>
+        <li>Joseph Nathaniel C Unias</li>
+        <li>Raphael Dave Balino</li>
+        <li>Emmanuel Gomez</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Built with ❤️ by Group12 Arduino pH Detector</p>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="Night.js"></script>
+</body>
+</html>
